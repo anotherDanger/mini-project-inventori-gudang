@@ -1,0 +1,21 @@
+import express from 'express';
+import path from 'path';
+import { json } from 'stream/consumers';
+import { fileURLToPath } from 'url';
+import { addPegawai } from './middleware/pegawai.js';
+const app = express();
+app.use(express.json());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'index.html'))
+});
+
+app.post('/login', addPegawai, (req, res) => {
+    // res.sendFile(path.join(__dirname, '../public', 'index.html'))
+});
+
+app.listen(3000, () => {
+    console.log('http://localhost:3000');
+});
