@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { addPegawai } from './middleware/pegawai.js';
 import {tambahProduk} from './middleware/tambahBarang.js';
 import {getProducts} from './middleware/getProducts.js'
+import { deleteProduct } from './middleware/deleteProduct.js';
 const app = express();
 app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
@@ -24,6 +25,10 @@ app.get('/home', (req, res) => {
 
 app.get('/products', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'tambahProduk.html'));
+})
+
+app.delete('/products/:id', deleteProduct, (req, res) => {
+
 })
 
 app.get('/barang', getProducts, (req, res) => {

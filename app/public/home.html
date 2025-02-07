@@ -17,6 +17,7 @@
                     <th>Stok</th>
                     <th>Harga (Per Pcs)</th>
                     <th>Tanggal Masuk</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody id="produk-list">
@@ -25,45 +26,82 @@
     </div>
     <script>
         const getProducts = async () => {
-            try {
-                const request = new Request('http://localhost:3000/barang', {
-                    method: 'GET'
+    try {
+        const request = new Request('http://localhost:3000/barang', {
+            method: 'GET'
+        });
+        const response = await fetch(request);
+        if (response.ok) {
+            const products = await response.json();
+            const productList = document.getElementById('produk-list');
+
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-product-id', product.id_barang);
+                const idCell = document.createElement('td');
+                idCell.textContent = product.id_barang;
+                row.appendChild(idCell);
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = product.nama_barang;
+                row.appendChild(nameCell);
+
+                const stockCell = document.createElement('td');
+                stockCell.textContent = product.stok_barang;
+                row.appendChild(stockCell);
+
+                const priceCell = document.createElement('td');
+                priceCell.textContent = `Rp ${product.harga_barang}`;
+                row.appendChild(priceCell);
+
+                const dateCell = document.createElement('td');
+                dateCell.textContent = product.tggl_masuk;
+                row.appendChild(dateCell);
+
+                const aksi = document.createElement('td');
+                const link = document.createElement('a');
+
+                link.href = `http://localhost:3000/products/${product.id_barang}`
+                link.textContent = 'Hapus';
+                link.classList.add('hapus-btn');
+                link.setAttribute('data-id', product.id_barang);
+                
+                aksi.appendChild(link);
+                row.appendChild(aksi);
+                productList.appendChild(row);
+            });
+
+
+            document.querySelectorAll('.hapus-btn').forEach(link => {
+                link.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const productId = e.target.getAttribute('data-id');
+                    const confirmDelete = confirm(`Apakah Anda yakin ingin menghapus produk dengan ID ${productId}?`);
+                    
+                    if (confirmDelete) {
+                        try {
+                            const deleteResponse = await fetch(`http://localhost:3000/products/${productId}`, {
+                                method: 'DELETE'
+                            });
+                            if (deleteResponse.ok) {
+                                alert("Produk berhasil dihapus!");
+                                e.target.closest('tr').remove();
+                            } else {
+                                alert("Gagal menghapus produk.");
+                            }
+                        } catch (error) {
+                            console.error("Error:", error);
+                        }
+                    }
                 });
-                const response = await fetch(request);
-                if (response.ok) {
-                    const products = await response.json();
-                    const productList = document.getElementById('produk-list');
-                    products.forEach(product => {
-                        const row = document.createElement('tr');
-                        const idCell = document.createElement('td');
-                        idCell.textContent = product.id_barang;
-                        row.appendChild(idCell);
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
 
-                        const nameCell = document.createElement('td');
-                        nameCell.textContent = product.nama_barang;
-                        row.appendChild(nameCell);
-
-                        const stockCell = document.createElement('td');
-                        stockCell.textContent = product.stok_barang;
-                        row.appendChild(stockCell);
-
-                        const priceCell = document.createElement('td');
-                        priceCell.textContent = `Rp ${product.harga_barang}`;
-                        row.appendChild(priceCell);
-
-                        const dateCell = document.createElement('td');
-                        dateCell.textContent = product.tggl_masuk;
-                        row.appendChild(dateCell);
-
-                        productList.appendChild(row);
-                    })
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        };
-
-        window.onload = getProducts;
+window.onload = getProducts;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
